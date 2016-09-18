@@ -41,13 +41,14 @@ colored = 0
 print("getting colors")
 for y in range(len(pix)):
     for x in range(len(pix[0])):
-        colored += 1 if pix[y][x] > 0 else 0
+        if pix[y][x] > 0:
+            colored += 1
 compress = math.ceil(math.sqrt(colored/19989))
 grid = []
 print("getting resolution")
-for y in range(len(pix)):
+for y in range(0, len(pix), compress):
     row = []
-    for x in range(len(pix[0])):
+    for x in range(0, len(pix[0]), compress):
         gValue = 0
         i = 0
         j = 0
