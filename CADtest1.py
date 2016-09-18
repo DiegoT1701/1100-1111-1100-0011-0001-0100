@@ -2,15 +2,18 @@ from PIL import Image
 import os
 import math
 
-
+#code to make a cube in OpenSCAD
 def cube(width, height, depth):
     return "cube(["+str(width)+", "+str(height)+", "+str(depth)+"]);"
+
+#code to translate a cube in OpenSCAD
 def translate(cube_width, cube_height, cube_depth, width, height, depth):
-
-
     return "translate(["+str(width)+", "+str(height)+", "+str(depth)+"]){"+cube(cube_width,cube_height,cube_depth)+"}"
-name = "saitama-ok"
-print("start")
+
+print("start") #output marker in console
+name = "saitama-ok" #name of image
+
+#opens image and checks to see what kind of image file it is
 try:
     img = Image.open(name+".png")
 except:
@@ -18,11 +21,12 @@ except:
         img = Image.open(name+".jpg")
     except:
         img = Image.open(name+".jpeg")
-image = img.load()
-limit = 10
-f = open("project.txt","w")
+
+pixels = img.load() #gets all the pixels in an image, where pixels[x, y] returns the pixel in position [x, y] of the image
+limit = 10 #max limit to the height of a cube
+file = open("project.txt","w") #
 dark = False
-pix = []
+colors = []
 depth_ratio = 1
 print("getting values")
 for y in range(img.size[1]):
@@ -35,39 +39,40 @@ for y in range(img.size[1]):
             gValue = pixel
         if(dark):
             gValue = abs(gValue-256)
-        row.append(limit*(round(gValue/256,3)))
+        row.append(limit*(gValue/256))
     pix.append(row)
 colored = 0
 print("getting colors")
 for y in range(len(pix)):
     for x in range(len(pix[0])):
-        if pix[y][x] > 0:
-            colored += 1
-compress = math.ceil(math.sqrt(colored/19989))
+       if pix[y][x] > 0:
+           colored += 1
+compress = math.ceil(math.sqrt((len(pix)*len(pix[0]))/19989))
 grid = []
 print("getting resolution")
-for y in range(0, len(pix), compress):
+for y in range(0,len(pix)):
     row = []
-    for x in range(0, len(pix[0]), compress):
+    for x in range(0,len(pix[0])):
+        '''
         gValue = 0
         i = 0
         j = 0
-        while x + i < len(pix[0]) and i < compress:
-            try:
-              gValue += pix[y][x+i]
-            except:
-                pass
-            i+=1
-        while y + j < len(pix[1]) and j < compress:
-            try:
-               gValue += pix[y + j][x]
-            except:
-                pass
-            j+=1
-        gValue/=compress
+        for j in range(compress):
+            for i in range(compress):
+                try:
+                  gValue += pix[y][x+i]
+                except:
+                    pass
+                try:
+                   gValue += pix[y + j][x]
+                except:
+                    pass
+        gValue/=(compress*compress)
+        '''
+        gValue = pix[y][x]
         row.append(gValue)
     grid.append(row)
-res = 1
+res = 2
 cad = []
 print("done resolution")
 for y in range(len(grid)):
@@ -89,10 +94,10 @@ for y in range(len(grid)):
         row.append(round((sum/count),2))
     cad.append(row)
 print("not")
-for y in range(len(grid)):
-    for x in range(len(grid[0])):
+for y in range(len(cad)):
+    for x in range(len(cad[0])):
         if cad[y][x] > 0:
-          f.write(translate(1,1,cad[y][x],len(grid)-y,len(grid[0])-x,0)+"\n")
+           f.write(translate(1,1,cad[y][x],len(cad)-y,len(cad[0])-x,0)+"\n")
 print("end")
 f.close()
 os.system("project.txt")
